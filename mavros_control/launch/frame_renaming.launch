@@ -1,0 +1,37 @@
+<launch>
+  <arg name="robot_namespace" default="scout" />
+
+  <group ns="$(arg robot_namespace)/mavros">
+    <rosparam subst_value="true">
+global_position:
+  frame_id: "$(arg robot_namespace)/map"
+  child_frame_id: "$(arg robot_namespace)/base_link"
+  tf:
+    frame_id: "$(arg robot_namespace)/map"
+    global_frame_id: "world"
+    child_frame_id: "$(arg robot_namespace)/base_link"
+imu:
+  frame_id: "$(arg robot_namespace)/base_link"
+local_position:
+  frame_id: "$(arg robot_namespace)/map"
+  child_frame_id: "$(arg robot_namespace)/base_link"
+  tf:
+    frame_id: "$(arg robot_namespace)/map"
+    child_frame_id: "$(arg robot_namespace)/base_link"
+setpoint_attitude:
+  frame_id: "$(arg robot_namespace)/map"
+  child_frame_id: "$(arg robot_namespace)/target_attitude"
+setpoint_position:
+  frame_id: "$(arg robot_namespace)/map"
+  child_frame_id: "$(arg robot_namespace)/target_position"
+fake_gps:
+  frame_id: "$(arg robot_namespace)/map"
+  child_frame_id: "$(arg robot_namespace)/fix"
+odometry:
+  frame_tf:
+    local_frame: "$(arg robot_namespace)/vision_ned"
+vibration:
+  frame_id: "$(arg robot_namespace)/base_link"
+    </rosparam>
+  </group>
+</launch>

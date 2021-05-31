@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<launch>
+
+<arg name="robot_namespace" default="scout"/>
+
+  <group ns="$(arg robot_namespace)">
+	<node name="mission_planner" pkg="mission_planner" type="mission_plan_node" output="screen">
+		<param name="robot_namespace" value="$(arg robot_namespace)" />
+
+        <param name="mission_start" value="1" />
+
+		<!-- window pass through parameter -->
+        <param name="window_width" type="double" value="1.5" />
+        <param name="window_height" type="double" value="2.0" />
+
+        <param name="camera_width"  value="640" />
+        <param name="camera_height" value="480" />
+
+        <param name="fx" value="450" />
+        <param name="fy" value="489" />
+        <param name="cx" value="320" />
+        <param name="cy" value="240" />
+
+		<!-- Velocity Multiply Factor -->
+		<!-- 1.0 - 2.0 -->
+		<param name="VEL_FACTOR" value="1.0" />
+
+		<!-- Mission Index -->
+		<!-- [0] default   [1] takeoff       [2] landing  -->
+		<!-- [3] waypoint  [4] path tracking [5] hovering -->
+		
+		<!-- mission 1. takeoff -->
+		<param name="PHASE_Takeoff_mission" value="4" />
+		<param name="PHASE_Takeoff_x" value="9.552" />
+		<param name="PHASE_Takeoff_y" value="-8.32" />
+		<param name="PHASE_Takeoff_z" value="1.0" />
+		<param name="PHASE_Takeoff_r" value="0.0" />
+		<param name="PHASE_Takeoff_vx" value="1.0" />
+		<param name="PHASE_Takeoff_vz" value="0.5" />
+		<param name="PHASE_Takeoff_next" value="2" />
+
+		<!-- mission 2. wall pass -->
+		<param name="PHASE_Wall_Pass_mission" value="4" />
+		<param name="PHASE_Wall_Pass_x" value="15.106" />
+		<param name="PHASE_Wall_Pass_y" value="-27.769" />
+		<param name="PHASE_Wall_Pass_z" value="1.0" />
+		<param name="PHASE_Wall_Pass_r" value="0.0" />
+		<param name="PHASE_Wall_Pass_vx" value="1.0" />
+		<param name="PHASE_Wall_Pass_vz" value="0.5" />
+		<param name="PHASE_Wall_Pass_next" value="3" />
+			
+		<!-- mission 3. pole pass -->
+		<param name="PHASE_Pole_Pass_mission" value="4" />
+		<param name="PHASE_Pole_Pass_x" value="-5.212" />
+		<param name="PHASE_Pole_Pass_y" value="-32.391" />
+		<param name="PHASE_Pole_Pass_z" value="1.0" />
+		<param name="PHASE_Pole_Pass_r" value="0.0" />
+		<param name="PHASE_Pole_Pass_vx" value="1.0" />
+		<param name="PHASE_Pole_Pass_vz" value="0.5" />
+		<param name="PHASE_Pole_Pass_next" value="4" />
+
+		<!-- mission 4. net pass -->
+		<param name="PHASE_Net_Pass_mission" value="4" />
+		<param name="PHASE_Net_Pass_x" value="-12.028" />
+		<param name="PHASE_Net_Pass_y" value="-31.211" />
+		<param name="PHASE_Net_Pass_z" value="1.0" />
+		<param name="PHASE_Net_Pass_r" value="0.0" />
+		<param name="PHASE_Net_Pass_vx" value="1.0" />
+		<param name="PHASE_Net_Pass_vz" value="0.5" />
+		<param name="PHASE_Net_Pass_next" value="5" />
+
+		<!-- mission 5. tree pass -->
+		<param name="PHASE_Tree_Pass_mission" value="4" />
+		<param name="PHASE_Tree_Pass_x" value="-15.936" />
+		<param name="PHASE_Tree_Pass_y" value="-3.161" />
+		<param name="PHASE_Tree_Pass_z" value="1.0" />
+		<param name="PHASE_Tree_Pass_r" value="-0.5" />
+		<param name="PHASE_Tree_Pass_vx" value="1.0" />
+		<param name="PHASE_Tree_Pass_vz" value="0.5" />
+		<param name="PHASE_Tree_Pass_next" value="6" />
+
+		<!-- mission 6. pipe pass -->
+		<param name="PHASE_Pipe_Pass_mission" value="4" />
+		<param name="PHASE_Pipe_Pass_x" value="0.0" />
+		<param name="PHASE_Pipe_Pass_y" value="0.0" />
+		<param name="PHASE_Pipe_Pass_z" value="1.0" />
+		<param name="PHASE_Pipe_Pass_r" value="-2.07079" />
+		<param name="PHASE_Pipe_Pass_vx" value="1.0" />
+		<param name="PHASE_Pipe_Pass_vz" value="0.5" />
+		<param name="PHASE_Pipe_Pass_next" value="9" />
+
+		<!-- mission 7. window pass -->
+		<param name="PHASE_Window_Pass_mission" value="4" />
+		<param name="PHASE_Window_Pass_x" value="41.867" />
+		<param name="PHASE_Window_Pass_y" value="-17.41" />
+		<param name="PHASE_Window_Pass_z" value="1.0" />
+		<param name="PHASE_Window_Pass_r" value="1.841592" />
+		<param name="PHASE_Window_Pass_vx" value="1.0" />
+		<param name="PHASE_Window_Pass_vz" value="0.5" />
+		<param name="PHASE_Window_Pass_next" value="8" />
+
+		<!-- mission 8. wind pass -->
+		<param name="PHASE_Wind_Pass_mission" value="4" />
+		<param name="PHASE_Wind_Pass_x" value="0.0" />
+		<param name="PHASE_Wind_Pass_y" value="0.0" />
+		<param name="PHASE_Wind_Pass_z" value="1.0" />
+		<param name="PHASE_Wind_Pass_r" value="1.841592" />
+		<param name="PHASE_Wind_Pass_vx" value="1.0" />
+		<param name="PHASE_Wind_Pass_vz" value="0.5" />
+		<param name="PHASE_Wind_Pass_next" value="9" />
+
+		<param name="PHASE_Wind_Pass_mode" value="1" />
+		<param name="PHASE_Wind_Pass_box_x" value="3.0" />
+		<param name="PHASE_Wind_Pass_box_y" value="-11.0" />
+        <param name="PHASE_Wind_Pass_box_alt" value="1.0" />
+		<!-- mission 9. landing -->
+		<param name="PHASE_Landing_mission" value="2" />
+		<param name="PHASE_Landing_x" value="0.0" />
+		<param name="PHASE_Landing_y" value="0.0" />
+		<param name="PHASE_Landing_z" value="2.0" />
+		<param name="PHASE_Landing_r" value="-3.141592" />
+		<param name="PHASE_Landing_vx" value="0.6" />
+		<param name="PHASE_Landing_vz" value="-0.4" />
+	</node>
+  </group>
+
+</launch>

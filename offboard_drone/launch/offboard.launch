@@ -1,0 +1,5 @@
+<launch>
+	<arg name="robot_namespace" default="scout" />
+	<node pkg="offboard_drone" type="offboard_node" name="offboard_node" output="screen" ns="$(arg robot_namespace)" />
+
+</launch>

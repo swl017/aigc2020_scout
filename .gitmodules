@@ -1,0 +1,6 @@
+[submodule "teraranger"]
+	path = teraranger
+	url = git@githum.com:swl017/teraranger.git
+[submodule "urg_node"]
+	path = urg_node
+	url = git@githum.com:swl017/urg_node.git

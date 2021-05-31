@@ -1,0 +1,6 @@
+<!-- -->
+<launch>
+ <arg name="robot_namespace" default="scout"/>
+ <node pkg="distance_map" type="distance_map.py" name="distance_map" ns="$(arg robot_namespace)" output="screen">
+  </node>
+</launch>

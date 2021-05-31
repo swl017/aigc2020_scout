@@ -1,0 +1,6 @@
+<!-- -->
+<launch>
+ <arg name="robot_namespace" default="scout"/>
+ <node pkg="plot_data" type="visual_comp.py" name="visual_comp" ns="$(arg robot_namespace)" output="screen">
+  </node>
+</launch>
