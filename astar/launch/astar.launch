@@ -1,9 +1,8 @@
-<!-- -->
+<?xml version="1.0"?>
 <launch>
-	<!--arg name="sensor_type" default="Evo_3m"/>
-	<arg name="output" default="screen"/-->
-<arg name="robot_namespace" default="scout" />
+	<arg name="robot_namespace" default="scout" />
 	<node pkg="astar" type="astar_path" name="astar_path" output="screen" clear_params="true" ns="$(arg robot_namespace)">     	
+		<param name="safe_distance" value="0.1" />
 	</node>
 
 </launch>

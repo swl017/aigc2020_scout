@@ -16,6 +16,8 @@
 
 std::string robot_namespace;
 
+float safe_distance_ = 0.2f; // set using ros param
+float safe_distance2_ = 0.3f; // set using ros param
 float SAFEDISTANSE  = 0.3f;
 float TARGETDISTANCE = 0.50f;
 
@@ -518,12 +520,13 @@ void missionCallback(const std_msgs::Float32MultiArray::ConstPtr& msg)
         float mission = msg->data[0];
         if(mission == 6.0)
         {
-            SAFEDISTANSE  = 0.4f;
+            SAFEDISTANSE  = safe_distance2_;
+        //     SAFEDISTANSE  = 0.4f;
             TARGETDISTANCE = 0.4f;
         }
         else
         {
-            SAFEDISTANSE  = 0.3f;
+            SAFEDISTANSE  = safe_distance_;
             TARGETDISTANCE = 0.5f;
         }
     }
@@ -540,6 +543,7 @@ int main(int argc, char* argv[])
     ros::NodeHandle nh_odo;
     ros::NodeHandle nh_goal;
     ros::NodeHandle nh_pub;
+    ros::NodeHandle nhp("~");
 
     ros::Subscriber map_sub = nh_map.subscribe("map", 1, mapCallback);
     ros::Subscriber distanceMap_sub = nh_map.subscribe("map_distance", 1, distanceMapCallback);
@@ -552,6 +556,8 @@ int main(int argc, char* argv[])
 
     path_pub = nh_pub.advertise<nav_msgs::Path>("astar_path_vis",1);
     marker_pub = nh_pub.advertise<visualization_msgs::Marker>("marker_target",1);
+
+    nhp.param("safe_distance", safe_distance_, (float)0.2);
 
     ROS_INFO("Astar Planner Started...");
     ros::spin();

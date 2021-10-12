@@ -13,6 +13,8 @@
   <arg name="respawn_mavros" default="false" />
   <arg name="robot_namespace" default="scout" />
 
+  <arg name="use_vision" default="true" />
+
   <node pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" clear_params="true" output="$(arg log_output)" respawn="$(arg respawn_mavros)" ns="$(arg robot_namespace)">
     <param name="fcu_url" value="$(arg fcu_url)" />
     <param name="gcs_url" value="$(arg gcs_url)" />
@@ -20,6 +22,7 @@
     <param name="target_component_id" value="$(arg tgt_component)" />
     <param name="fcu_protocol" value="$(arg fcu_protocol)" />
 
+    <param name="use_vision" value="$(arg use_vision)" />
     <!-- load blacklist, config -->
     <!--rosparam command="load" file="$(arg pluginlists_yaml)" />
     <rosparam command="load" file="$(arg config_yaml)"/-->
