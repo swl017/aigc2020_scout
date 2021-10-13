@@ -52,6 +52,30 @@ float R11,R12,R13;
 float R21,R22,R23;
 float R31,R32,R33;
 
+struct mission_pose
+{
+    double x   = 0;
+    double y   = 0;
+    double z   = 0;
+    double yaw = 0;
+};
+
+// Mission targets (read from csv instead of ros params)
+struct mission_command
+{
+    double x  = 0;
+    double y  = 0;
+    double z  = 0;
+    double r  = 0;
+    double vx = 0;
+    double vz = 0;
+    int mode     = 4;
+    int TAKEOFF  = 1;
+    int LAND     = 2;
+    int HOVER    = 3;
+    int WAYPOINT = 4;
+};
+
 // Target_Tracking Structure
 struct struct_Tar_data
 {

@@ -120,14 +120,14 @@ void PHASE_Takeoff(void)
     GoalPose.pose.position.z = PHASE_Takeoff_z;
     pub_goalpoint_.publish(GoalPose);
     pub_goalpoint.publish(GoalPoint);
-        float delx = GoalPoint.data[0] - Cur_Pos_m[0];
-        float dely = GoalPoint.data[1] - Cur_Pos_m[1];
+    float delx = GoalPoint.data[0] - Cur_Pos_m[0];
+    float dely = GoalPoint.data[1] - Cur_Pos_m[1];
 
-        float dist = sqrt(delx*delx + dely*dely);
-        if (fabs(dist) < 1.0)
-        {
-            flag.mission = PHASE_Takeoff_next;
-        }
+    float dist = sqrt(delx*delx + dely*dely);
+    if (fabs(dist) < 1.0)
+    {
+        flag.mission = PHASE_Takeoff_next;
+    }
 
     CloseArms();
 }

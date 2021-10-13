@@ -78,6 +78,17 @@ float t_cur = 0.0;
 // mission parameter
 int mission_start = 0;
 
+// true  : set mission using ros param
+// false : set mission using csv files
+bool use_legacy_mission;
+
+// mission file(waypoint file) csv
+std::string mission_file;
+
+// Threshold for determining next mission
+double next_mission_thres_xy;
+double next_mission_thres_z; // Set < 0 if not using
+
 // window pass parameter
 double window_width = 0.0;
 double window_height = 0.0;
