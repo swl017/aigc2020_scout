@@ -8,6 +8,8 @@
 #include <nav_msgs/Path.h>
 #include <sensor_msgs/LaserScan.h>
 
+#include <fstream>
+
 // setup the initial name
 using namespace ros;
 using namespace std;
@@ -26,50 +28,59 @@ void parseMissionCsvFile(const std::string& inputFileName, std::vector<mission_c
         if (!getline(inputFile, s))
             break;
         if (s[0] != '#') {
-        istringstream ss(s);
+            istringstream ss(s);
 
-        int cnt = 0;
-        bool nan_flg = false;
-        while (ss) {
-            string line;
-            if (!getline(ss, line, ','))
-                break;
-            try {
-                if (cnt == 0)
-                    mission_cmd.x = stof(line);
-                else if (cnt == 1)
-                    mission_cmd.y = stof(line);
-                else if (cnt == 2)
-                    mission_cmd.z = stof(line);
-                else if (cnt == 3)
-                    mission_cmd.r = stof(line);
-                else if (cnt == 4)
-                    mission_cmd.vx = stof(line);
-                else if (cnt == 5)
-                    mission_cmd.vz = stof(line);
-            } catch (const std::invalid_argument e) {
-                cout << "NaN found in file " << inputFileName << " line " << l
-                    << endl;
-                e.what();
-                nan_flg = true;
+            int cnt = 0;
+            bool nan_flg = false;
+            while (ss) {
+                string line;
+                if (!getline(ss, line, ','))
+                    break;
+                try {
+                    if (cnt == 0)
+                        mission_cmd.x = stof(line);
+                    else if (cnt == 1)
+                        mission_cmd.y = stof(line);
+                    else if (cnt == 2)
+                        mission_cmd.z = stof(line);
+                    else if (cnt == 3)
+                        mission_cmd.r = stof(line);
+                    else if (cnt == 4)
+                        mission_cmd.vx = stof(line);
+                    else if (cnt == 5)
+                        mission_cmd.vz = stof(line);
+                } catch (const std::invalid_argument e) {
+                    cout << "NaN found in file " << inputFileName << " line " << l
+                         << endl;
+                    e.what();
+                    nan_flg = true;
+                }
+                cnt++;
             }
-            cnt++;
-        }
-        if (nan_flg == false)
-            if (first_line) {
-                mission_cmd.mode = mission_cmd.TAKEOFF;
-                first_line = false;
-            } else {
-                mission_cmd.mode = mission_cmd.WAYPOINT;
+            if (nan_flg == false) {
+                if (first_line) {
+                    mission_cmd.mode = mission_cmd.TAKEOFF;
+                    first_line = false;
+                } else {
+                    mission_cmd.mode = mission_cmd.WAYPOINT;
+                }
+                data.push_back(mission_cmd);
             }
-            data.push_back(mission_cmd);
         }
     }
-    data.at(data.size()-1).mode = mission_cmd.LAND;
 
     if (!inputFile.eof()) {
         cerr << "Could not read file " << inputFileName << "\n";
         __throw_invalid_argument("File not found.");
+    }
+    data.at(data.size()-1).mode = mission_cmd.LAND;
+    for (int i = 0; i < data.size(); i++) {
+        std::cout << "[" << i << "]"
+                  <<  " x: "  << data.at(i).x
+                  << ", y: "  << data.at(i).y 
+                  << ", z: "  << data.at(i).z 
+                  << ", vx: " << data.at(i).vx 
+                  << ", vz: " << data.at(i).vz << std::endl;
     }
 
 }
@@ -194,10 +205,10 @@ int main(int argc, char** argv)
     //printf("pos_x : %.3f\n",pos_x);
     nh_param.param("mission_start", mission_start, 0);
 
-    nh_param.param("use_legacy_mission", use_legacy_mission, false);
+    nh_param.param("use_legacy_mission", use_legacy_mission, true);
     nh_param.param<std::string>("mission_file", mission_file, "mission_file");
     nh_param.param("next_mission_thres_xy", next_mission_thres_xy, 0.5);
-    nh_param.param("next_mission_thres_z", next_mission_thres_z, 0.5);
+    nh_param.param("next_mission_thres_z", next_mission_thres_z, -1.0);
 
     nh_param.param("window_width", window_width, 1.0);
     nh_param.param("window_height", window_height, 1.0);
@@ -315,6 +326,7 @@ int main(int argc, char** argv)
         }
         else
         {
+            mission_command next_command;
             findCurrentMission(mission_cmd_array, next_command);
             publishCommand(next_command);
         }
@@ -398,46 +410,5 @@ void Mission_Update(void)
         printf("[WP]  [x] %3.3f  [y] %3.3f  [z] %3.3f\n", GoalAction.data[1], GoalAction.data[2], GoalAction.data[3]);
         printf("\n\n\n\n\n");
     }
-
-}
-
-void findCurrentMission(const std::vector<mission_command>& mission_cmd_array, mission_command& next_command)
-{
-    mission_pose current_pose;
-    current_pose.x   = Cur_Pos_m[0];
-    current_pose.y   = Cur_Pos_m[1];
-    current_pose.z   = Cur_Pos_m[2];
-    current_pose.yaw = Cur_Att_rad[2];
-
-    mission_pose target_pose;
-    target_pose.x = mission_cmd_array[flag.mission].x;
-    target_pose.y = mission_cmd_array[flag.mission].y;
-    target_pose.z = mission_cmd_array[flag.mission].z;
-    target_pose.yaw = mission_cmd_array[flag.mission].r;
-
-    if ( (abs(target_pose.z - current_pose.z) < next_mission_thres_z || next_mission_thres_z < 0) && (flag.mission != mission_cmd_array.size()) )
-    {
-        double dist_sq = (current_pose.x - target_pose.x) * (current_pose.x - target_pose.x)
-                         + (current_pose.y - target_pose.y) * (current_pose.y - target_pose.y);
-        if (dist_sq > next_mission_thres_xy * next_mission_thres_xy)
-        {
-            flag.mission += 1;
-        }
-    }
-
-    next_command = mission_cmd_array[flag.mission];
-
-    // int    closest_index = 0;
-    // double closest_dist  = 9999;
-    // for(int i = 0; i < mission_cmd_array.size(); i++)
-    // {
-    //     double dist_sq = (current_pose.x - mission_cmd_array[i].x) * (current_pose.x - mission_cmd_array[i].x)
-    //                      + (current_pose.y - mission_cmd_array[i].y) * (current_pose.y - mission_cmd_array[i].y);
-        
-    // }
-}
-
-void publishCommand(const mission_command& next_command)
-{
 
 }

@@ -985,4 +985,66 @@ void GeoLocation(void)
     //tar_data.pos[2] = nav_data.posNED[1] - tar_data.dist;
 }
 
+void findCurrentMission(const std::vector<mission_command>& mission_cmd_array, mission_command& next_command)
+{
+    mission_pose current_pose;
+    current_pose.x   = Cur_Pos_m[0];
+    current_pose.y   = Cur_Pos_m[1];
+    current_pose.z   = Cur_Pos_m[2];
+    current_pose.yaw = Cur_Att_rad[2];
+
+    mission_pose target_pose;
+    target_pose.x = mission_cmd_array[flag.mission].x;
+    target_pose.y = mission_cmd_array[flag.mission].y;
+    target_pose.z = mission_cmd_array[flag.mission].z;
+    target_pose.yaw = mission_cmd_array[flag.mission].r;
+
+    /** Find next mission if
+     * 1. height(z) is within threshold or
+     * 2. heigth threshold is overriden(by setting next_mission_thres_z < 0) and
+     * 3. current mission is not the last one and
+     * 4. current position is within threshold of distance to goal
+     */
+    if ( (abs(target_pose.z - current_pose.z) < next_mission_thres_z || next_mission_thres_z < 0)
+             && (flag.mission != mission_cmd_array.size()) )
+    {
+        double dist_sq = (current_pose.x - target_pose.x) * (current_pose.x - target_pose.x)
+                         + (current_pose.y - target_pose.y) * (current_pose.y - target_pose.y);
+        if (dist_sq < next_mission_thres_xy * next_mission_thres_xy)
+        {
+            flag.mission += 1;
+        }
+    }
+
+    next_command = mission_cmd_array[flag.mission];
+}
+
+void publishCommand(const mission_command& mission_cmd)
+{
+    // target action
+    GoalAction.data[0] = mission_cmd.mode;
+
+    // target position
+    GoalAction.data[1] = mission_cmd.x;
+    GoalAction.data[2] = mission_cmd.y;
+    GoalAction.data[3] = mission_cmd.z;
+    GoalAction.data[4] = mission_cmd.r;
+
+    // target velocity
+    GoalAction.data[5] = mission_cmd.vx*VEL_FACTOR;
+    GoalAction.data[6] = mission_cmd.vz;
+    pub_goalaction.publish(GoalAction);
+
+    // Astar Path Goal
+    GoalPoint.data[0] = mission_cmd.x;
+    GoalPoint.data[1] = mission_cmd.y;
+    GoalPose.header.stamp = ros::Time::now();
+    GoalPose.header.frame_id = "odom";
+    GoalPose.pose.position.x = mission_cmd.x;
+    GoalPose.pose.position.y = mission_cmd.y;
+    GoalPose.pose.position.z = mission_cmd.z;
+    pub_goalpoint_.publish(GoalPose);
+    pub_goalpoint.publish(GoalPoint);
+}
+
 #endif
