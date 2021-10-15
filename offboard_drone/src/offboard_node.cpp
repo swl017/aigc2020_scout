@@ -5,11 +5,13 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <mavros_msgs/CommandBool.h>
+#include <mavros_msgs/CommandLong.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/RCIn.h>
 #include "sensor_msgs/Range.h"
 #include <sensor_msgs/LaserScan.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/UInt8MultiArray.h>
 #include <std_msgs/Float32.h>
@@ -50,6 +52,7 @@ geometry_msgs::PoseStamped     Local;
 geometry_msgs::TwistStamped    Localvel;
 std::string                    robot_namespace;
 std_msgs::Float32MultiArray    GoalAction;
+std_msgs::Bool land;
 
 void Mission_Update(void);
 void Auto_Takeoff(void);
@@ -110,6 +113,7 @@ int      return_home = 0;
 float    goal[4];
 float    goal_velx;
 float    goal_velz;
+float    target_yaw = 0;
 
 float    GF_cmd_x;
 float    GF_cmd_y;
@@ -126,6 +130,7 @@ double     cancel=0;
 visualization_msgs::Marker TargetList, Target;
 ros::Publisher pub_target;
 ros::Publisher min_up_pub;
+ros::Publisher land_pub;
 void publish_target(void);
 
 int    point_ind = 0;
@@ -295,6 +300,9 @@ void astar(const std_msgs::Float32MultiArray& astar_path_msg)
     //path.psi = astar_path_msg.data[2]; //Desired PSI angle
     path.wp_x = astar_path_msg.data[3];
     cancel = astar_path_msg.data[4];
+
+    target_yaw = atan2(goal[1] - Cur_Pos_m[1], goal[0] - Cur_Pos_m[0]);
+
 }
 
 int main(int argc, char **argv)
@@ -319,6 +327,7 @@ int main(int argc, char **argv)
     ros::Publisher      local_vel_pub    = nh.advertise<geometry_msgs::TwistStamped>("/scout/mavros/setpoint_velocity/cmd_vel", 10);
     min_up_pub                           = nh.advertise<std_msgs::Float64>("/scout/scan_up_min", 1);
     pub_target                           = nh.advertise<visualization_msgs::Marker>   ("/current_waypoint", 1);
+    land_pub = nh.advertise<std_msgs::Bool>("/is_landing", 1);
 
     ros::ServiceClient  arming_client    = nh.serviceClient<mavros_msgs::CommandBool>("/scout/mavros/cmd/arming");
     ros::ServiceClient  set_mode_client  = nh.serviceClient<mavros_msgs::SetMode>    ("/scout/mavros/set_mode");
@@ -348,10 +357,14 @@ int main(int argc, char **argv)
     mavros_msgs::SetMode offb_set_mode;
     offb_set_mode.request.custom_mode = "OFFBOARD";
 
+    mavros_msgs::SetMode LAND_set_mode;
+    LAND_set_mode.request.custom_mode = "AUTO.LAND";
+
     mavros_msgs::CommandBool arm_cmd;
-    mavros_msgs::CommandBool disarm_cmd;
+    mavros_msgs::CommandLong disarm_cmd;
     arm_cmd.request.value = true;
-    disarm_cmd.request.value = false;
+    disarm_cmd.request.command = 400;
+    disarm_cmd.request.param2 = 21196;
 
     ros::Time last_request = ros::Time::now();
     ros::Time global_request = ros::Time::now();
@@ -390,21 +403,21 @@ int main(int argc, char **argv)
             }
         }
 
-        /*
-	if (debug_hardware == 0)
-	{
+        
+	// if (debug_hardware == 0)
+	// {
 		if (flag_start == 1)
 		{
 			if(flag_armed == 0)
 			{
-				if((!g_current_state.armed) && (ros::Time::now() - last_request > ros::Duration(1.0)))
+				if((!g_current_state.armed) && (ros::Time::now() - last_request > ros::Duration(2.0)))
 				{
-				if( arming_client.call(arm_cmd) && arm_cmd.response.success)
-				{
-					flag_armed = 1;
-					ROS_INFO("Vehicle armed");
-				}
-				last_request = ros::Time::now();
+                    if( arming_client.call(arm_cmd) && arm_cmd.response.success)
+                    {
+                        flag_armed = 1;
+                        ROS_INFO("Vehicle armed");
+                    }
+                    last_request = ros::Time::now();
 				}
 			}
 		}
@@ -412,18 +425,19 @@ int main(int argc, char **argv)
 		{
 			if (flag_armed == 1)
 			{
-			   
 				ROS_INFO("Vehicle Disarmed");
-				if (arming_client.call(disarm_cmd)&& disarm_cmd.response.success)
+                if (set_mode_client.call(LAND_set_mode) && LAND_set_mode.response.mode_sent)
+				// if (arming_client.call(disarm_cmd)&& disarm_cmd.response.success)
 				{
-				 flag_armed = 0;
+                    flag_armed = 0;
+                    last_request = ros::Time::now();
 				}
 				//mission.data = 0;  // [None]
 				last_request = ros::Time::now();
 			}
 		}
-	}
-        */
+	// }
+        
 
 
 
@@ -551,26 +565,29 @@ void Auto_Landing(void)
 
     angle_err = GetNED_angle_err(goal[3], Cur_Att_rad[2]);
     cmd_r = 0;
+    takeoff_x = Cur_Pos_m[0];
+    takeoff_y = Cur_Pos_m[1];
+    land.data = true;
+    land_pub.publish(land);
+    // if (flag_landing != 1)
+    // {
+    //     landing_request = ros::Time::now();
+    // }
 
-    if (flag_landing != 1)
-    {
-        landing_request = ros::Time::now();
-    }
-
-    if (Cur_Pos_m[2] < 0.2)
-    {
-        cmd_z = -0.5;
-        flag_landing = 1;
-        if (ros::Time::now() - landing_request > ros::Duration(1.0))
-        {
-            flag_takeoff = 0;
-            takeoff_x = Cur_Pos_m[0];
-            takeoff_y = Cur_Pos_m[1];
-            flag_landing = 0;
-            goal_service = 0;
-            takeoff_request = ros::Time::now();
-        }
-    }
+    // if (Cur_Pos_m[2] < 0.2)
+    // {
+    //     cmd_z = -0.5;
+    //     flag_landing = 1;
+    //     if (ros::Time::now() - landing_request > ros::Duration(1.0))
+    //     {
+    //         flag_takeoff = 0;
+    //         takeoff_x = Cur_Pos_m[0];
+    //         takeoff_y = Cur_Pos_m[1];
+    //         flag_landing = 0;
+    //         goal_service = 0;
+    //         takeoff_request = ros::Time::now();
+    //     }
+    // }
 }
 
 void WP_Flight(void)
@@ -629,7 +646,7 @@ void Path_Flight(void)
     hover_heading = Cur_Att_rad[2];
     goal_heading = Cur_Att_rad[2];
     */
-
+    flag_landing = 0;
     float dist = sqrt((path.x-Cur_Pos_m[0])*(path.x-Cur_Pos_m[0]) + (path.y-Cur_Pos_m[1])*(path.y-Cur_Pos_m[1]));
     if (dist > 0.2)
     {
@@ -637,10 +654,11 @@ void Path_Flight(void)
     }
     path.psi = atan2(path.y-Cur_Pos_m[1], path.x-Cur_Pos_m[0]);
     // angle_err = GetNED_angle_err(path.psi, Cur_Att_rad[2]);
-    angle_err = GetNED_angle_err(goal[3], Cur_Att_rad[2]);
+    // angle_err = GetNED_angle_err(goal[3], Cur_Att_rad[2]);
+    angle_err = GetNED_angle_err(target_yaw + goal[3], Cur_Att_rad[2]);
 
     float velcmd = goal_velx;
-    if (fabs(angle_err) > 20.0*D2R)
+    if (fabs(angle_err) > 10.0*D2R)
         velcmd = goal_velx*0.5;
     else
         velcmd = goal_velx;
@@ -660,7 +678,8 @@ void Path_Flight(void)
     else{
       cmd_r = 0;
     }
-
+    takeoff_x = Cur_Pos_m[0]; // Why update?
+    takeoff_y = Cur_Pos_m[1]; // Why update?
     hover[0] = Cur_Pos_m[0];
     hover[1] = Cur_Pos_m[1];
     hover[2] = goal[2];
