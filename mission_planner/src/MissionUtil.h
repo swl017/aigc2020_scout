@@ -1002,11 +1002,11 @@ void findCurrentMission(const std::vector<mission_command>& mission_cmd_array, m
     /** Find next mission if
      * 1. height(z) is within threshold or
      * 2. heigth threshold is overriden(by setting next_mission_thres_z < 0) and
-     * 3. current mission is not the last one and
+     * 3. current mission is not LAND(=the last one) and
      * 4. current position is within threshold of distance to goal
      */
     if ( (abs(target_pose.z - current_pose.z) < next_mission_thres_z || next_mission_thres_z < 0)
-             && (flag.mission != mission_cmd_array.size()) )
+             && (flag.mission != mission_cmd_array.size() - 1) )
     {
         double dist_sq = (current_pose.x - target_pose.x) * (current_pose.x - target_pose.x)
                          + (current_pose.y - target_pose.y) * (current_pose.y - target_pose.y);
