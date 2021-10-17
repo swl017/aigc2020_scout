@@ -2,7 +2,7 @@
 <launch>
 	<arg name="robot_namespace" default="scout" />
 	<node pkg="astar" type="astar_path" name="astar_path" output="screen" clear_params="true" ns="$(arg robot_namespace)">     	
-		<param name="safe_distance" value="0.1" />
+		<param name="safe_distance" value="0.22" />
 	</node>
 
 </launch>

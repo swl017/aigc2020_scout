@@ -22,6 +22,7 @@ void parseMissionCsvFile(const std::string& inputFileName, std::vector<mission_c
 
     int l = 0;
     bool first_line = true;
+    bool second_line = true;
     while (inputFile) {
         l++;
         string s;
@@ -61,7 +62,10 @@ void parseMissionCsvFile(const std::string& inputFileName, std::vector<mission_c
                 if (first_line) {
                     mission_cmd.mode = mission_cmd.TAKEOFF;
                     first_line = false;
-                } else {
+                } else if (second_line) {
+                    mission_cmd.mode = mission_cmd.TAKEOFF;
+		    second_line = false;
+		} else {
                     mission_cmd.mode = mission_cmd.WAYPOINT;
                 }
                 data.push_back(mission_cmd);

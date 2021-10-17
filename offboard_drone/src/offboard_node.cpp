@@ -114,6 +114,7 @@ float    goal[4];
 float    goal_velx;
 float    goal_velz;
 float    target_yaw = 0;
+float    takeoff_yaw = 0;
 
 float    GF_cmd_x;
 float    GF_cmd_y;
@@ -656,6 +657,7 @@ void Path_Flight(void)
     // angle_err = GetNED_angle_err(path.psi, Cur_Att_rad[2]);
     // angle_err = GetNED_angle_err(goal[3], Cur_Att_rad[2]);
     angle_err = GetNED_angle_err(target_yaw + goal[3], Cur_Att_rad[2]);
+    // angle_err = GetNED_angle_err(target_yaw, Cur_Att_rad[2]);
 
     float velcmd = goal_velx;
     if (fabs(angle_err) > 10.0*D2R)
@@ -672,12 +674,13 @@ void Path_Flight(void)
 
     //angle_err = GetNED_angle_err(goal[3], Cur_Att_rad[2]);
     //angle_err = GetNED_angle_err(path.psi, Cur_Att_rad[2]);
-    if (cancel <= 0.5){
-      cmd_r = -satmax(Kr*angle_err, R_MAX);
-    }
-    else{
-      cmd_r = 0;
-    }
+    //if (cancel <= 0.5){
+    //  cmd_r = -satmax(Kr*angle_err, R_MAX);
+    //}
+    //else{
+    //  cmd_r = 0;
+    //}
+    cmd_r = -satmax(Kr*angle_err, R_MAX);
     takeoff_x = Cur_Pos_m[0]; // Why update?
     takeoff_y = Cur_Pos_m[1]; // Why update?
     hover[0] = Cur_Pos_m[0];
