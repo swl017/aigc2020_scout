@@ -8,8 +8,8 @@ environment:
   BASE_NAME: base1
   DELAY: "2"
   RATE: "1.0"
-  SESSION_NAME: 2021-10-15_2122_01
-  SET_NUM: set3
+  DATE: 2021-10-16_2257
+  SET_NUM: set0
 
 options:
   default-command: /bin/bash
@@ -22,13 +22,13 @@ windows:
   #  - rosparam set /use_sim_time true
   panes:
     # - roscore
-    - sleep 3; roslaunch teraranger evo.launch
-    - sleep 3; roslaunch mavros_control px4.launch
+    - sleep 1; roslaunch teraranger evo.launch
+    - sleep 2; roslaunch mavros_control px4.launch
     - sleep 9; roslaunch tf_listener tf.launch
     - sleep 3; roslaunch cartographer_ros stix.launch
-    - sleep 3; roslaunch distance_map distance_map.launch
     - sleep 3; roslaunch offboard_drone offboard.launch
-    - sleep 3; roscd kaist_rosbag/bags; mkdir ${SET_NUM}_${SESSION_NAME}; roslaunch kaist_rosbag kaist_rosbag.launch record_folder:=${SET_NUM}_${SESSION_NAME}
+    - sleep 3; roslaunch distance_map distance_map.launch
     - sleep 3; roslaunch astar astar.launch
     - sleep 3; roslaunch mission_planner mission_planner_csv.launch mission_file:=mission_${SET_NUM}.csv
-    - sleep 70; cd /home/iitp00/flight_record/audio; arecord -t wav -c 8 -D plughw:2,0 -f S32_LE -r 48000 flight_audio_${SET_NUM}_${SESSION_NAME}.wav
+    - sleep 3; roscd kaist_rosbag/bags; mkdir ${SET_NUM}_${DATE}; roslaunch kaist_rosbag kaist_rosbag.launch record_folder:=${SET_NUM}_${DATE}
+    - echo ${SET_NUM}_${DATE}; sleep 70; cd /home/iitp00/flight_record/audio; arecord -t wav -c 8 -D plughw:2,0 -f S32_LE -r 48000 flight_audio_${SET_NUM}_${DATE}.wav

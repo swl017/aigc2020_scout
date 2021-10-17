@@ -22,7 +22,6 @@ void parseMissionCsvFile(const std::string& inputFileName, std::vector<mission_c
 
     int l = 0;
     bool first_line = true;
-    bool second_line = true;
     while (inputFile) {
         l++;
         string s;
@@ -32,6 +31,7 @@ void parseMissionCsvFile(const std::string& inputFileName, std::vector<mission_c
             istringstream ss(s);
 
             int cnt = 0;
+            int mode_override = 0;
             bool nan_flg = false;
             while (ss) {
                 string line;
@@ -50,6 +50,8 @@ void parseMissionCsvFile(const std::string& inputFileName, std::vector<mission_c
                         mission_cmd.vx = stof(line);
                     else if (cnt == 5)
                         mission_cmd.vz = stof(line);
+                    else if (cnt == 6)
+                        mode_override = stof(line);
                 } catch (const std::invalid_argument e) {
                     cout << "NaN found in file " << inputFileName << " line " << l
                          << endl;
@@ -61,12 +63,13 @@ void parseMissionCsvFile(const std::string& inputFileName, std::vector<mission_c
             if (nan_flg == false) {
                 if (first_line) {
                     mission_cmd.mode = mission_cmd.TAKEOFF;
+                    data.push_back(mission_cmd); // Add dumy data for compatibility with legacy mission pipeline
                     first_line = false;
-                } else if (second_line) {
-                    mission_cmd.mode = mission_cmd.TAKEOFF;
-		    second_line = false;
-		} else {
-                    mission_cmd.mode = mission_cmd.WAYPOINT;
+                } else {
+                    mission_cmd.mode = mission_cmd.PATHFLIGHT;
+                }
+                if (mode_override > 0) {
+                    mission_cmd.mode = mode_override;
                 }
                 data.push_back(mission_cmd);
             }

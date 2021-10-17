@@ -603,8 +603,9 @@ void WP_Flight(void)
     cmd_y = satmax(Kpx*(goal[1] - Cur_Pos_m[1]),goal_velx);
     cmd_z = satmax(Kpz*(goal[2] - Cur_Pos_m[2]),goal_velz) + Kdz*(0.0 - Cur_Vel_mps[2]);
 
-    angle_err = GetNED_angle_err(goal[3], Cur_Att_rad[2]);
+    // angle_err = GetNED_angle_err(goal[3], Cur_Att_rad[2]);
     //angle_err = GetNED_angle_err(path.psi, Cur_Att_rad[2]);
+    angle_err = GetNED_angle_err(target_yaw + goal[3], Cur_Att_rad[2]);
     cmd_r = -satmax(Kr*angle_err, R_MAX);
 
     hover[0] = Cur_Pos_m[0];

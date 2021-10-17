@@ -69,11 +69,12 @@ struct mission_command
     double r  = 0;
     double vx = 0;
     double vz = 0;
-    int mode     = 4;
-    int TAKEOFF  = 1;
-    int LAND     = 2;
-    int HOVER    = 3;
-    int WAYPOINT = 4;
+    int mode       = 4;
+    int TAKEOFF    = 1;
+    int LAND       = 2;
+    int WAYPOINT   = 3;
+    int PATHFLIGHT = 4;
+    int HOVER      = 5;
 };
 
 // Target_Tracking Structure

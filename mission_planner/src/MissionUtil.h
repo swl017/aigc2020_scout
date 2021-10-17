@@ -993,24 +993,25 @@ void findCurrentMission(const std::vector<mission_command>& mission_cmd_array, m
     current_pose.z   = Cur_Pos_m[2];
     current_pose.yaw = Cur_Att_rad[2];
 
-    mission_pose target_pose;
-    target_pose.x = mission_cmd_array[flag.mission].x;
-    target_pose.y = mission_cmd_array[flag.mission].y;
-    target_pose.z = mission_cmd_array[flag.mission].z;
-    target_pose.yaw = mission_cmd_array[flag.mission].r;
+    mission_command current_mission = mission_cmd_array[flag.mission];
+    mission_pose current_mission_pose;
+    current_mission_pose.x = current_mission.x;
+    current_mission_pose.y = current_mission.y;
+    current_mission_pose.z = current_mission.z;
+    current_mission_pose.yaw = current_mission.r;
 
     /** Find next mission if
-     * 1. height(z) is within threshold or
-     * 2. heigth threshold is overriden(by setting next_mission_thres_z < 0) and
-     * 3. current mission is not LAND(=the last one) and
-     * 4. current position is within threshold of distance to goal
+     * 1. height(z) is within threshold
+     * 2. or heigth threshold is overriden(by setting next_mission_thres_z < 0)
+     * 3. and current mission is not LAND nor the last one
+     * 4. and current position is within threshold of distance to goal or mission is TAKEOFF
      */
-    if ( (abs(target_pose.z - current_pose.z) < next_mission_thres_z || next_mission_thres_z < 0)
-             && (flag.mission != mission_cmd_array.size() - 1) )
+    if ( (abs(current_mission_pose.z - current_pose.z) < next_mission_thres_z || next_mission_thres_z < 0)
+             && ((flag.mission < mission_cmd_array.size() - 1) || current_mission.mode != current_mission.LAND) )
     {
-        double dist_sq = (current_pose.x - target_pose.x) * (current_pose.x - target_pose.x)
-                         + (current_pose.y - target_pose.y) * (current_pose.y - target_pose.y);
-        if (dist_sq < next_mission_thres_xy * next_mission_thres_xy)
+        double dist_sq = (current_pose.x - current_mission_pose.x) * (current_pose.x - current_mission_pose.x)
+                         + (current_pose.y - current_mission_pose.y) * (current_pose.y - current_mission_pose.y);
+        if (dist_sq < next_mission_thres_xy * next_mission_thres_xy || current_mission.mode == current_mission.TAKEOFF)
         {
             flag.mission += 1;
         }
