@@ -562,7 +562,7 @@ void Auto_Landing(void)
 {
     cmd_x = satmax(Kpx*(goal[0] - Cur_Pos_m[0]),goal_velx);
     cmd_y = satmax(Kpx*(goal[1] - Cur_Pos_m[1]),goal_velx);
-    cmd_z = goal_velz;
+    cmd_z = goal_velz < 0 ? goal_velz : -0.5;
 
     angle_err = GetNED_angle_err(goal[3], Cur_Att_rad[2]);
     cmd_r = 0;
