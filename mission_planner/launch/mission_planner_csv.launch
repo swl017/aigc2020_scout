@@ -12,7 +12,7 @@
         <param name="mission_start" value="1" />
         <param name="use_legacy_mission" value="false" />
         <param name="mission_file" value="$(find mission_planner)/mission_csv/$(arg mission_file)" />
-        <param name="next_mission_thres_xy" value="0.5" />
+        <param name="next_mission_thres_xy" value="0.54" />
         <param name="next_mission_thres_z" value="0.12" />
 
 		<!-- window pass through parameter -->
