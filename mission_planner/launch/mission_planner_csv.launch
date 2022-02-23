@@ -4,6 +4,8 @@
 <arg name="robot_namespace" default="scout"/>
 <arg name="flight_height" default="1.3" />
 <arg name="mission_file" default="mission.csv" />
+<arg name="next_mission_thres_xy" default="0.5" />
+<arg name="next_mission_thres_z" default="0.2" />
 
   <group ns="$(arg robot_namespace)">
 	<node name="mission_planner" pkg="mission_planner" type="mission_plan_node" output="screen">
@@ -12,8 +14,8 @@
         <param name="mission_start" value="1" />
         <param name="use_legacy_mission" value="false" />
         <param name="mission_file" value="$(find mission_planner)/mission_csv/$(arg mission_file)" />
-        <param name="next_mission_thres_xy" value="0.54" />
-        <param name="next_mission_thres_z" value="0.12" />
+        <param name="next_mission_thres_xy" value="$(arg next_mission_thres_xy)" />
+        <param name="next_mission_thres_z" value="$(arg next_mission_thres_z)" />
 
 		<!-- window pass through parameter -->
         <param name="window_width" type="double" value="1.5" />
