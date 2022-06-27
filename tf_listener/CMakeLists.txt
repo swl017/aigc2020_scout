@@ -56,3 +56,6 @@ target_link_libraries(
 	tf_listener
         ${catkin_LIBRARIES}
 )
+
+install(TARGETS tf_listener
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
