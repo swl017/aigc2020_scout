@@ -21,7 +21,7 @@ windows:
     # - roscore
     - roscore
     - sleep 5; roslaunch teraranger evo.launch
-    - sleep 3; roslaunch mavros_control px4.launch
+    - sleep 4; roslaunch mavros_control px4.launch 
     - sleep 9; source ~/catkin_ws/install/setup.bash && roslaunch tf_listener tf.launch
     - sleep 3; source ~/carto_ws/devel_isolated/setup.bash && roslaunch cartographer_ros stix.launch
     - sleep 3; source ~/catkin_ws/install/setup.bash && roslaunch offboard_drone offboard.launch
